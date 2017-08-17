@@ -1,7 +1,4 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,9 +10,9 @@ public class DB {
     final static String USERNAME = "userdb";
     final static String PASSWORD = "password1";
 
-    public List getTaskList(int userid) {
+    public boolean getTaskList(int idUser) {
 
-        System.out.println("getting tasks from db");
+        boolean foundAtLeastOne=false;
 
         try {
 
@@ -24,12 +21,17 @@ public class DB {
             // 3. obtain a connection
             Connection conn = DriverManager.getConnection(URL, USERNAME, PASSWORD);
 
-            // 4. create a query statement
-            Statement st = conn.createStatement();
 
-            String query = "SELECT * FROM tasklistionel order by taskname asc";
+
+            String query = "SELECT * FROM tasklistionel where fkiduser = ? order by taskname asc";
+
+            // 4. create a query statement
+            PreparedStatement st = conn.prepareStatement(query);
+            st.setInt(1,idUser);
+
+
             // 5. execute a query
-            ResultSet rs = st.executeQuery(query);
+            ResultSet rs = st.executeQuery();
 
             // 6. iterate the result set and print the values
             while (rs.next()) {
@@ -40,7 +42,7 @@ public class DB {
 
 
 
-                // 7. close the objects
+                foundAtLeastOne=true;
 
             }
 
@@ -54,13 +56,7 @@ public class DB {
             ex.printStackTrace();
         }
 
-        return null;
+        return foundAtLeastOne;
     }
 
-    public static void main(String[] args) {
-        System.out.println("miau");
-
-        DB d = new DB();
-        d.getTaskList(1);
-    }
 }
